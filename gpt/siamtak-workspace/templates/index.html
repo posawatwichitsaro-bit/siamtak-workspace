@@ -1,0 +1,191 @@
+
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Siamtak Workspace</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div><strong>Siamtak</strong><span>Workspace</span></div>
+    </div>
+    <nav>
+      <a href="/" data-page="hub">⌂ <span>Hub</span></a>
+      <a href="/tools" data-page="tools">◈ <span>เครื่องมือ</span></a>
+      <a href="/tools/accpress" data-page="accpress">▣ <span>Accpress</span></a>
+      <a href="/tools/accpress/jobs" data-page="jobs">◷ <span>งานของฉัน</span></a>
+      <a href="/tools/accpress/result" data-page="result">✓ <span>ผลลัพธ์</span></a>
+      <a href="/about" data-page="about">ⓘ <span>เกี่ยวกับ</span></a>
+      <a href="/contact" data-page="contact">✉ <span>ติดต่อ Admin</span></a>
+    </nav>
+    <div class="side-foot">Internal workspace<br><small>LAN • Local-first</small></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn" aria-label="เมนู">☰</button>
+      <div class="crumb"><span>Siamtak Workspace</span><b>/</b><span id="crumbPage">Hub</span></div>
+      <div class="top-actions"><span class="status-dot"></span> ระบบภายใน</div>
+    </header>
+    <section id="view" class="view"></section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const PAGE = "{{ page }}";
+const view = document.getElementById('view');
+const crumb = document.getElementById('crumbPage');
+
+const icons = {hub:"⌂",tools:"◈",accpress:"▣",upload:"↑",jobs:"◷",result:"✓",about:"ⓘ",contact:"✉"};
+
+const templates = {
+hub: () => `
+  <div class="hero">
+    <div>
+      <div class="eyebrow">SIAMTAK INTERNAL PLATFORM</div>
+      <h1>ยินดีต้อนรับสู่<br><span>Siamtak Workspace</span></h1>
+      <p>ศูนย์กลางเครื่องมือสำหรับช่วยลดงานซ้ำ ๆ ของพนักงาน<br>ออกแบบให้ทำงานบนเครือข่ายภายในบริษัท</p>
+      <a class="btn primary" href="/tools">เริ่มต้นใช้งาน <span>→</span></a>
+    </div>
+    <div class="hero-orb"><div class="orb-grid"></div><div class="orb-core">SW</div></div>
+  </div>
+  <div class="section-head"><div><div class="eyebrow">QUICK ACCESS</div><h2>เลือกงานที่ต้องการ</h2></div><a href="/tools" class="text-link">ดูเครื่องมือทั้งหมด →</a></div>
+  <div class="tool-grid">
+    ${toolCard("accpress","Accpress","ดึงข้อมูลจากใบแจ้งหนี้ / ใบวางบิล","PDF · PNG · JPG","แนะนำ")}
+    <div class="tool-card muted"><div class="tool-icon">＋</div><h3>เครื่องมือเพิ่มเติม</h3><p>พื้นที่สำหรับระบบใหม่ที่จะเพิ่มในอนาคต</p><span class="tag">Coming soon</span></div>
+  </div>
+  <div class="info-strip"><div><b>Local-first</b><span>ข้อมูลไม่จำเป็นต้องออกนอกเครือข่าย</span></div><div><b>หลายไฟล์</b><span>รองรับการทำงานเป็นชุด</span></div><div><b>ติดตามงาน</b><span>ดูสถานะและผลลัพธ์ย้อนหลังได้</span></div></div>
+`,
+tools: () => `
+  <div class="page-title"><div class="eyebrow">TOOLS</div><h1>เครื่องมือทั้งหมด</h1><p>เลือกเครื่องมือที่ต้องการใช้งาน</p></div>
+  <div class="tool-grid">${toolCard("accpress","Accpress","อ่านและสกัดข้อมูลจากเอกสารเพื่อเตรียมส่งต่อให้ระบบบัญชี","PDF · PNG · JPG","พร้อมใช้งาน")}
+  <div class="tool-card muted"><div class="tool-icon">＋</div><h3>New tool</h3><p>เพิ่มเครื่องมือสำหรับงานอื่นของบริษัทในอนาคต</p><span class="tag">Coming soon</span></div></div>
+`,
+accpress: () => `
+  <div class="page-title"><div class="eyebrow">TOOL / ACCPRESS</div><h1>Accpress</h1><p>เปลี่ยนเอกสารใบแจ้งหนี้ / ใบวางบิล ให้เป็นข้อมูลพร้อมใช้งาน</p></div>
+  <div class="process">
+    ${step("01","Upload","เลือกเอกสาร PDF, PNG หรือ JPG")}
+    <div class="line"></div>${step("02","Process","AI OCR + Extract ผ่าน workflow")}
+    <div class="line"></div>${step("03","Result","รับไฟล์ผลลัพธ์และนำไปใช้งานต่อ")}
+  </div>
+  <div class="action-panel"><div><span class="panel-kicker">READY</span><h2>เริ่มงานใหม่</h2><p>สามารถเลือกหลายไฟล์ในครั้งเดียวได้</p></div><a class="btn primary" href="/tools/accpress/upload">เลือกไฟล์ <span>→</span></a></div>
+  <div class="sub-actions"><a href="/tools/accpress/jobs">ดูงานที่กำลังทำ →</a><a href="/tools/accpress/result">ดูผลลัพธ์ล่าสุด →</a></div>
+`,
+upload: () => `
+  <div class="page-title"><div class="eyebrow">ACCPRESS / UPLOAD</div><h1>อัปโหลดเอกสาร</h1><p>รองรับ PDF, PNG และ JPG • สูงสุด 100 MB ต่อคำขอ</p></div>
+  <form id="uploadForm">
+    <label id="dropzone" class="dropzone">
+      <input id="fileInput" type="file" name="files" multiple accept=".pdf,.png,.jpg,.jpeg">
+      <div class="upload-icon">↑</div><h2>ลากไฟล์มาวางที่นี่</h2><p>หรือ <u>เลือกไฟล์จากเครื่อง</u></p><span>PDF · PNG · JPG / JPEG</span>
+    </label>
+    <div id="fileList" class="file-list"></div>
+    <div class="upload-footer"><a class="btn ghost" href="/tools/accpress">ยกเลิก</a><button class="btn primary" type="submit" id="submitBtn" disabled>เริ่มประมวลผล <span>→</span></button></div>
+  </form>
+`,
+jobs: () => `
+  <div class="page-title inline"><div><div class="eyebrow">ACCPRESS / JOBS</div><h1>งานของฉัน</h1><p>ติดตามสถานะงานที่ส่งเข้าระบบ</p></div><a class="btn primary small" href="/tools/accpress/upload">+ งานใหม่</a></div>
+  <div id="jobsTable" class="jobs"></div>
+`,
+result: () => `
+  <div class="page-title"><div class="eyebrow">ACCPRESS / RESULT</div><h1>ผลลัพธ์</h1><p>ดาวน์โหลดไฟล์ที่ผ่านกระบวนการแล้ว</p></div>
+  <div id="resultList" class="result-list"></div>
+`,
+about: () => `
+  <div class="page-title"><div class="eyebrow">ABOUT</div><h1>เกี่ยวกับ Siamtak Workspace</h1><p>ศูนย์กลางงานดิจิทัลภายในบริษัท</p></div>
+  <div class="about-grid"><div class="about-card large"><span class="panel-kicker">VISION</span><h2>ทำให้งานประจำง่ายขึ้น</h2><p>Siamtak Workspace เป็นจุดรวมเครื่องมือสำหรับงานภายในบริษัท โดยเริ่มจากงานที่มีขั้นตอนซ้ำ ๆ และสามารถทำให้เป็นระบบได้</p></div><div class="about-card"><b>Local-first</b><p>ออกแบบให้รองรับการทำงานภายใน LAN และต่อยอดเข้ากับระบบ AI / Automation ภายในองค์กร</p></div><div class="about-card"><b>Modular</b><p>เพิ่มเครื่องมือใหม่เป็น module ได้ โดยไม่ต้องเปลี่ยน Hub หลัก</p></div></div>
+`,
+contact: () => `
+  <div class="page-title"><div class="eyebrow">CONTACT</div><h1>ติดต่อ Admin</h1><p>หากพบปัญหาหรือมีคำขอเพิ่มเติม สามารถติดต่อผู้ดูแลระบบ</p></div>
+  <div class="contact-card"><div class="contact-icon">✉</div><div><span class="panel-kicker">SYSTEM ADMIN</span><h2>ช่องทางติดต่อภายใน</h2><p>แจ้งปัญหา • ขอเพิ่มเครื่องมือ • ขอสิทธิ์การใช้งาน</p><div class="contact-placeholder">Admin contact: <b>ตั้งค่าตามองค์กร</b></div></div></div>
+`
+};
+
+function toolCard(type,title,desc,formats,badge){
+ return `<a class="tool-card" href="/tools/${type}"><div class="tool-icon">${icons[type]}</div><span class="tag">${badge}</span><h3>${title}</h3><p>${desc}</p><div class="card-foot"><span>${formats}</span><span>→</span></div></a>`;
+}
+function step(num,title,text){ return `<div class="step"><span>${num}</span><b>${title}</b><p>${text}</p></div>`; }
+
+function setView(page){
+ view.innerHTML = templates[page] ? templates[page]() : templates.hub();
+ crumb.textContent = page === "hub" ? "Hub" : page.charAt(0).toUpperCase()+page.slice(1);
+ document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.page===page));
+ if(page==="upload") initUpload();
+ if(page==="jobs") loadJobs("jobsTable");
+ if(page==="result") loadResults();
+}
+
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
+
+document.getElementById('menuBtn').onclick=()=>document.getElementById('sidebar').classList.toggle('open');
+
+document.addEventListener('click', e=>{
+ const a=e.target.closest('a[href]');
+ if(!a || a.target==="_blank") return;
+ const url=new URL(a.href);
+ if(url.origin!==location.origin) return;
+ if(url.pathname.startsWith("/api/")) return;
+ e.preventDefault();
+ history.pushState({}, "", url.pathname);
+ const page = routePage(url.pathname);
+ setView(page);
+ document.getElementById('sidebar').classList.remove('open');
+});
+window.onpopstate=()=>setView(routePage(location.pathname));
+
+function routePage(path){
+ if(path==="/") return "hub";
+ if(path==="/tools") return "tools";
+ if(path==="/tools/accpress") return "accpress";
+ if(path==="/tools/accpress/upload") return "upload";
+ if(path==="/tools/accpress/jobs") return "jobs";
+ if(path==="/tools/accpress/result") return "result";
+ if(path==="/about") return "about";
+ if(path==="/contact") return "contact";
+ return "hub";
+}
+
+function initUpload(){
+ const input=document.getElementById('fileInput'), dz=document.getElementById('dropzone'), list=document.getElementById('fileList'), btn=document.getElementById('submitBtn');
+ let files=[];
+ function render(){ list.innerHTML=files.map((f,i)=>`<div class="file-row"><div class="file-badge">${f.name.split('.').pop().toUpperCase()}</div><div><b>${f.name}</b><small>${(f.size/1024/1024).toFixed(2)} MB</small></div><button type="button" data-i="${i}">×</button></div>`).join(''); btn.disabled=!files.length; }
+ input.onchange=()=>{ files=[...files,...input.files]; render(); input.value=""; };
+ dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag');};
+ dz.ondragleave=()=>dz.classList.remove('drag');
+ dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag');files=[...files,...e.dataTransfer.files];render();};
+ list.onclick=e=>{if(e.target.dataset.i!==undefined){files.splice(+e.target.dataset.i,1);render();}};
+ document.getElementById('uploadForm').onsubmit=async e=>{
+   e.preventDefault(); btn.disabled=true; btn.innerHTML="กำลังส่งงาน…";
+   const fd=new FormData(); files.forEach(f=>fd.append('files',f));
+   try{
+     const r=await fetch('/api/accpress/upload',{method:'POST',body:fd}); const data=await r.json();
+     if(!r.ok) throw new Error(data.error||"Upload failed");
+     toast(`สร้างงาน ${data.id} แล้ว`);
+     history.pushState({}, "", "/tools/accpress/jobs"); setView("jobs");
+   }catch(err){toast(err.message);btn.disabled=false;btn.innerHTML='เริ่มประมวลผล <span>→</span>';}
+ };
+}
+async function loadJobs(id){
+ const el=document.getElementById(id);
+ el.innerHTML="<div class='empty'>กำลังโหลด…</div>";
+ const jobs=await (await fetch('/api/jobs')).json();
+ if(!jobs.length){el.innerHTML=`<div class="empty"><div class="empty-icon">◷</div><h3>ยังไม่มีงาน</h3><p>เริ่มจากการอัปโหลดเอกสาร Accpress</p><a class="btn primary small" href="/tools/accpress/upload">สร้างงานแรก</a></div>`;return;}
+ el.innerHTML=`<div class="job-table"><div class="job-head"><span>JOB</span><span>FILES</span><span>STATUS</span><span>CREATED</span><span></span></div>${jobs.map(j=>`<div class="job-row"><b>#${j.id}</b><span>${j.files.length} ไฟล์</span><span class="status ${j.status}">${labelStatus(j.status)}</span><span>${new Date(j.created_at).toLocaleString('th-TH')}</span><a href="/tools/accpress/result?job=${j.id}">ดูผลลัพธ์ →</a></div>`).join("")}</div>`;
+}
+function labelStatus(s){return {queued:"รอประมวลผล",processing:"กำลังทำงาน",completed:"เสร็จแล้ว",failed:"ผิดพลาด"}[s]||s;}
+async function loadResults(){
+ const el=document.getElementById('resultList'); const jobs=await (await fetch('/api/jobs')).json();
+ const done=jobs.filter(j=>j.status==="completed" && j.result_files?.length);
+ if(!done.length){el.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><h3>ยังไม่มีผลลัพธ์</h3><p>เมื่อประมวลผลเสร็จ ไฟล์จะปรากฏที่นี่</p></div>`;return;}
+ el.innerHTML=done.map(j=>`<div class="result-card"><div class="result-main"><div class="file-badge">JOB</div><div><b>#${j.id}</b><p>${j.result_files.length} ผลลัพธ์ • ${new Date(j.created_at).toLocaleString('th-TH')}</p></div></div><a class="btn primary small" href="/api/jobs/${j.id}/download">ดาวน์โหลด ${j.result_files.length>1?"ZIP":"ไฟล์"} ↓</a></div>`).join("");
+}
+setView(PAGE);
+</script>
+</body>
+</html>
