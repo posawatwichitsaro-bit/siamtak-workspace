@@ -1,0 +1,5 @@
+{
+  "name":"siamtak-workspace","version":"2.0.0","private":true,
+  "scripts":{"start":"node server.js","dev":"node --watch server.js"},
+  "dependencies":{"express":"^5.1.0","express-session":"^1.18.2","dotenv":"^16.4.7"}
+}
